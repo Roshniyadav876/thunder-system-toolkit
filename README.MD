@@ -59,6 +59,8 @@ Custom output file:
 node code.js --save-json report.json
 ```
 
+Supports both human-readable CLI output and machine-readable JSON output.
+
 ---
 
 # 🏗 Architecture
@@ -111,7 +113,7 @@ Formatted Output / JSON Output
 # 📂 Project Structure
 
 ```text
-project/
+thunder-system-toolkit/
 │
 ├── code.js
 ├── README.md
@@ -131,7 +133,7 @@ project/
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Roshniyadav876/thunder-system-toolkit.git
 ```
 
 Move into the project directory:
@@ -140,7 +142,7 @@ Move into the project directory:
 cd thunder-system-toolkit
 ```
 
-Run:
+Run the application:
 
 ```bash
 node code.js --help
@@ -300,6 +302,21 @@ This ensures the application remains stable even when individual operations fail
 * File Rename & Copy
 * Health Monitoring Dashboard
 * Live System Monitoring
+
+---
+
+# 🎯 Hackathon Objective
+
+This project was developed for Thunder Hackathon 3.0 to demonstrate secure system information collection, environment variable inspection, JSON reporting, and sandboxed file management using Node.js.
+
+The solution focuses on:
+
+- Information gathering
+- Security
+- Validation
+- Error handling
+- Clean CLI design
+- Structured reporting
 
 ---
 
