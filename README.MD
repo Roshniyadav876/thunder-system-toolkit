@@ -1,97 +1,179 @@
-# System Information Collector & File Manager
+# 🚀 Thunder System Toolkit
 
-A Node.js CLI that gathers system information (OS, CPU, memory, runtime
-versions, user, environment variables) and performs CRUD operations on
-files inside a sandboxed working directory.
+### Thunder Hackathon 3.0 Submission
 
-Built for Thunder Hackathon 3.0. No external dependencies — pure Node.js
-core modules (`os`, `fs`, `path`, `child_process`).
+Thunder System Toolkit is a secure Node.js CLI application that collects system information, inspects environment variables, exports reports in JSON format, and performs secure CRUD operations on files inside a sandboxed workspace.
 
-## Run it
+Built entirely using Node.js core modules (`os`, `fs`, `path`, `child_process`) with **zero external dependencies**.
 
+---
+
+# ✨ Features
+
+## 🖥 System Information
+
+Collect and display:
+
+* Operating System Details
+* OS Version
+* Platform & Architecture
+* Hostname
+* User Information
+* Home Directory
+* CPU Model & Core Count
+* Memory Usage Statistics
+* System Uptime
+* Node.js Version
+* NPM Version
+* Python Version
+
+## 🔐 Environment Variable Inspection
+
+* Safe allowlisted environment variables
+* Optional full environment dump
+* Secret masking for sensitive values
+* Graceful fallback handling
+
+## 📁 File Manager (CRUD)
+
+* Create Files
+* Read Files
+* Update Files
+* Delete Files
+* List Files
+* Automatic Backup Creation (`.bak`)
+* Filename Validation
+* File Size Validation
+
+## 📊 JSON Export
+
+Export complete system reports:
+
+```bash
+node code.js --save-json
 ```
-node code.js --help
+
+Custom output file:
+
+```bash
+node code.js --save-json report.json
 ```
 
-That prints every available command. Nothing runs automatically — the
-program only does what you tell it to on the command line.
+---
 
-## What it collects, and why each field is safe to expose
+# 🏗 Architecture
 
-| Field | Source | Notes |
-|---|---|---|
-| OS type / version / platform / architecture | `os.type()`, `os.release()`, `os.platform()`, `os.arch()` | Static system facts, no risk |
-| Hostname | `os.hostname()` | Local machine name |
-| Home directory | `os.homedir()`, falls back to `$HOME`/`$USERPROFILE` | Path only, not contents |
-| CPU model / core count | `os.cpus()` | Hardware info |
-| Memory (total/used/free/%) | `os.totalmem()`, `os.freemem()` | Computed, human-formatted |
-| Node / NPM / Python versions | `process.version`, `npm -v`, `python --version` | Runtime versions only, via `execSync` with a 5s timeout so a missing binary can't hang the process |
-| User info | `process.env.USER`, `os.userInfo()` | Username/UID/GID/shell, not credentials |
-| Environment variables (`--env`) | A **fixed allowlist**: `PATH, HOME, USER, SHELL, LANG, NODE_ENV, PWD` | Deliberately not "dump everything" by default |
-| Environment variables (`--env-all`) | Full `process.env` | Opt-in only; see Security section below |
-| Uptime | `os.uptime()` | Formatted as `Xd Yh Zm` |
-
-Every getter above is wrapped in its own try/catch (`safeGetOSType`,
-`safeGetCpuModel`, etc.) so a single failed lookup degrades to a labeled
-fallback ("Unknown", "Not Available") instead of crashing the whole
-report. `collectSystemInfo()` itself is also wrapped, falling back to
-`getDefaultSystemInfo()` as a last resort.
-
-## Code flow
-
+```text
+User
+ │
+ ▼
+CLI Interface
+ │
+ ├── System Information Module
+ │      ├── OS Information
+ │      ├── CPU Information
+ │      ├── Memory Information
+ │      ├── User Information
+ │      └── Environment Variables
+ │
+ └── File Manager Module
+        ├── Create
+        ├── Read
+        ├── Update
+        ├── Delete
+        └── List
 ```
+
+---
+
+# ⚙ Code Flow
+
+```text
 process.argv
      │
      ▼
 main()
-  ├─ strip out the --json modifier flag (works anywhere in the args)
-  ├─ no command? → printHelp() and exit
-  └─ command + args → dispatchCommand(collector, command, args, jsonMode)
-                              │
-              ┌───────────────┼────────────────┐
-              ▼               ▼                ▼
-     system-info commands   CRUD commands   --help / unknown
-     (--all, --os, --cpu,   (create, read,   → usage text
-      --memory, --node,      update, delete,
-      --env, --env-all,      list)
-      --user, --summary,
-      --save-json)
-              │                     │
-              ▼                     ▼
-     collectSystemInfo()    validateFileName() / validateFileContent()
-     → extractSection()           → fs operations inside ./collected_files
-     → printX() (console)
-       or JSON.stringify (--json)
+     │
+     ▼
+Command Dispatcher
+     │
+ ┌───┴───────────┐
+ ▼               ▼
+System Info      File Manager
+Module           Module
+ │               │
+ ▼               ▼
+Formatted Output / JSON Output
 ```
 
-Key design choice: **information gathering and display are decoupled**.
-`collectSystemInfo()` always returns one full plain object. The CLI
-flags decide which slice of that object to show and in what format
-(`extractSection()` for the JSON slice, `printXSection()` for the
-human-readable block). Adding a new flag means adding one new section
-and one new case in the dispatcher — no existing code has to change.
+---
 
-## Command reference
+# 📂 Project Structure
 
-System information:
+```text
+project/
+│
+├── code.js
+├── README.md
+│
+├── screenshots/
+│   ├── system-report.png
+│   ├── crud-demo.png
+│   └── json-export.png
+│
+└── collected_files/
 ```
-node code.js --all              full report
-node code.js --os               OS, platform, arch, hostname, home dir
-node code.js --cpu               CPU model + core count
-node code.js --memory           total / used / free / usage %
-node code.js --node              Node, NPM, Python versions
-node code.js --env               allowlisted env vars (safe default)
-node code.js --env-all          full process.env, secrets masked
-node code.js --user              username, UID, GID, shell
-node code.js --summary          one-line health verdict
-node code.js --save-json [file] write the full report to JSON on disk
-```
-Add `--json` to any of the above to get raw JSON instead of the boxed
-console report, e.g. `node code.js --memory --json` — useful for piping
-into other tools or for the hackathon judges' automated checks.
 
-CRUD (all scoped to `./collected_files`):
+---
+
+# 🚀 Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
 ```
+
+Move into the project directory:
+
+```bash
+cd thunder-system-toolkit
+```
+
+Run:
+
+```bash
+node code.js --help
+```
+
+---
+
+# 📋 Command Reference
+
+## System Information Commands
+
+```bash
+node code.js --all
+node code.js --os
+node code.js --cpu
+node code.js --memory
+node code.js --node
+node code.js --env
+node code.js --env-all
+node code.js --user
+node code.js --summary
+node code.js --save-json
+```
+
+JSON Output:
+
+```bash
+node code.js --memory --json
+```
+
+## File Manager Commands
+
+```bash
 node code.js create <filename> [content]
 node code.js read <filename>
 node code.js update <filename> <content>
@@ -99,59 +181,129 @@ node code.js delete <filename>
 node code.js list
 ```
 
-## Error handling strategy
+---
 
-- Every OS/CPU/memory/version getter has its own try/catch + fallback
-  value, so partial failures never take down the whole report.
-- `npm -v` and `python --version` run through `execSync` with a 5-second
-  timeout and silenced stdio, so a missing or hanging binary can't stall
-  the CLI — it just reports "Unknown" / "Not Installed".
-- File operations validate filename (charset, length, no `..` or path
-  separators) and content size (10MB cap) *before* touching the
-  filesystem, and verify the result after each write/delete to confirm
-  it actually happened, not just that `fs` didn't throw.
-- `update` writes a `.bak` copy of the previous version before
-  overwriting, and a failed backup doesn't block the update — it's a
-  best-effort safety net, not a hard requirement.
-- Top-level `process.on('uncaughtException', …)` and
-  `process.on('unhandledRejection', …)` handlers catch anything that
-  slips past the inner try/catch blocks and exit with a clear message
-  instead of a raw stack dump.
+# 🛡 Security Features
 
-## Security considerations
+### Path Traversal Protection
 
-- **CRUD is sandboxed.** All file operations resolve inside
-  `./collected_files` next to the script. Filenames are validated
-  against `^[a-zA-Z0-9._-]+$` and explicitly rejected if they contain
-  `..`, `/`, or `\`, so this tool cannot read, write, or delete
-  anything elsewhere on the filesystem — it's a file manager, not a
-  shell.
-- **Environment variables are allowlisted by default.** `--env` only
-  ever returns 7 known-safe variables. The full `process.env` is only
-  exposed via the explicitly separate `--env-all` command, and even
-  then, any key matching `/key|secret|token|password|pwd|credential|
-  auth|cert|private/i` has its value masked (first/last 2 characters
-  kept, the rest replaced with asterisks) before being printed or
-  serialized.
-- **No shell injection surface.** The only `execSync` calls run fixed
-  strings (`npm -v`, `python --version`) — no user input is ever
-  concatenated into a shell command.
+Blocked examples:
 
-## Why this is JS, not a JS "virus"
+```text
+../../file.txt
+../secret.txt
+```
 
-The brief asks for a diagnostic/inventory tool: read local system
-metadata and manage files in a project-local folder. There's no
-self-replication, no network exfiltration, no execution of remote
-code, and no operation outside the sandboxed directory — by design,
-not by accident. That's reflected directly in the validation layer
-above.
+### Filename Validation
 
-## Possible next steps (not implemented, scoped out deliberately)
+Allowed characters:
 
-- Disk usage / network interface reporting (`os.networkInterfaces()`)
-  would be straightforward to add as another section, but was left out
-  to keep the env-var surface area small and the tool focused on what
-  was asked.
-- A `--watch` mode for live-updating memory/CPU stats was considered
-  but adds complexity (interval cleanup, terminal redraw) disproportionate
-  to the brief.
+```text
+a-z
+A-Z
+0-9
+.
+_
+-
+```
+
+### Sandboxed File Operations
+
+All CRUD operations are restricted to:
+
+```text
+./collected_files
+```
+
+The application cannot access files outside the sandboxed directory.
+
+### Secret Masking
+
+Sensitive environment variables are automatically masked:
+
+```text
+PASSWORD
+TOKEN
+SECRET
+KEY
+AUTH
+PRIVATE
+```
+
+---
+
+# ⚠ Error Handling Strategy
+
+Implemented protections:
+
+* Safe getters with fallback values
+* Individual try/catch blocks
+* Validation before file operations
+* Global exception handling
+* Unhandled promise rejection handling
+* File existence verification
+* Content size validation
+
+This ensures the application remains stable even when individual operations fail.
+
+---
+
+# 📸 Screenshots
+
+## Full System Information Report
+
+![System Report](screenshots/system-report.png)
+
+## CRUD Operations Demo
+
+![CRUD Demo](screenshots/crud-demo.png)
+
+## JSON Export Demo
+
+![JSON Export](screenshots/json-export.png)
+
+---
+
+# 💡 Design Decisions
+
+* Information collection and presentation are decoupled.
+* A single collector object generates all system information.
+* CLI commands control which data is displayed.
+* New commands can be added without affecting existing functionality.
+* Security and validation are enforced before filesystem access.
+
+---
+
+# 🏆 Hackathon Objective Mapping
+
+| Requirement                   | Status |
+| ----------------------------- | ------ |
+| System Information Collection | ✅      |
+| Environment Variables         | ✅      |
+| CRUD Operations               | ✅      |
+| Structured Output             | ✅      |
+| JSON Export                   | ✅      |
+| Error Handling                | ✅      |
+| Validation                    | ✅      |
+| Documentation                 | ✅      |
+| Code Flow Explanation         | ✅      |
+| Security Considerations       | ✅      |
+
+---
+
+# 🔮 Future Enhancements
+
+* Network Information Monitoring
+* Process Information Monitoring
+* File Search
+* File Statistics
+* File Rename & Copy
+* Health Monitoring Dashboard
+* Live System Monitoring
+
+---
+
+# 📄 License
+
+Created for **Thunder Hackathon 3.0** as an educational and demonstration project using Node.js.
+
